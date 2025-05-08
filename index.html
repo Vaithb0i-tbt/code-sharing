@@ -3,17 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MC to Bloxd Texture Converter</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Flappy Hayden</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #70c5ce;
+        }
+        canvas {
+            display: block;
+            margin: auto;
+            background-color: #fff;
+            border: 1px solid black;
+        }
+    </style>
 </head>
 <body>
-    <h1>Minecraft to Bloxd Texture Converter</h1>
-    <div>
-        <input type="file" id="fileInput" accept=".zip" />
-        <button onclick="convertTextures()">Convert Textures</button>
-    </div>
-    <div id="status"></div>
-    <script src="libs/file-saver.min.js"></script>
-    <script src="script.js"></script>
+    <canvas id="gameCanvas" width="320" height="480"></canvas>
+    <script src="game.js"></script>
 </body>
 </html>
