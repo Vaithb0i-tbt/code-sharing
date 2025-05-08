@@ -2,98 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Bloxd.io Code Hub</title>
+  <title>Bloxd.io AI</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 500px;
-      margin: 40px auto;
-      padding: 20px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    h1 { text-align: center; }
-    .hidden { display: none; }
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 8px;
-      margin-bottom: 15px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-    #formContainer {
-      text-align: center;
-    }
-    .toggle-btn {
-      background-color: transparent;
-      border: none;
-      color: blue;
-      cursor: pointer;
-      margin-top: -10px;
-      margin-bottom: 20px;
-      font-size: 14px;
-    }
-    #message { color: red; font-size: 14px; }
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+    #chatbox { width: 100%; height: 300px; border: 1px solid #ccc; overflow-y: scroll; padding: 10px; }
+    #userInput { width: 80%; padding: 10px; }
+    button { padding: 10px; }
   </style>
 </head>
 <body>
+  <h1>Bloxd.io AI Chat</h1>
+  <div id="chatbox"></div>
+  <input type="text" id="userInput" placeholder="Ask about bloxd.io..." />
+  <button onclick="getAnswer()">Send</button>
 
-<h1>🔐 Bloxd.io Login / Register</h1>
+  <script>
+    const knowledge = {
+      "what is bloxd.io": "Bloxd.io is a multiplayer Minecraft-style parkour and building game available in browsers.",
+      "how to play bloxd.io": "Use WASD to move, space to jump. Complete parkour levels or explore sandbox modes.",
+      "who made bloxd.io": "Bloxd.io was developed by Arthur and other indie developers.",
+      "is bloxd.io multiplayer": "Yes! It features real-time multiplayer modes including BloxdHop and Peaceful.",
+      "what are the game modes": "Game modes include BloxdHop, DoodleCube, Peaceful, Evil Tower, and CubeWarfare.",
+      "tips for bloxdhop": "Time your jumps, use momentum, and avoid falling off moving blocks.",
+    };
 
-<div id="formContainer">
-  <div id="message"></div>
-
-  <input type="text" id="username" placeholder="Username" required>
-  <input type="password" id="password" placeholder="Password" required>
-  <button id="submitBtn">Register</button>
-  <button class="toggle-btn" onclick="toggleMode()">Already have an account? Login</button>
-</div>
-
-<script>
-  let mode = "register"; // or "login"
-
-  const users = JSON.parse(localStorage.getItem('users') || '{}');
-  const messageDiv = document.getElementById('message');
-  const submitBtn = document.getElementById('submitBtn');
-
-  function toggleMode() {
-    mode = (mode === "register") ? "login" : "register";
-    submitBtn.textContent = mode === "register" ? "Register" : "Login";
-    document.querySelector('.toggle-btn').textContent =
-      mode === "register" ? "Already have an account? Login" : "Don't have an account? Register";
-    messageDiv.textContent = "";
-  }
-
-  submitBtn.addEventListener('click', function () {
-    const user = document.getElementById('username').value.trim();
-    const pass = document.getElementById('password').value;
-
-    if (!user || !pass) {
-      messageDiv.textContent = "Please enter both fields.";
-      return;
+    function getAnswer() {
+      const input = document.getElementById("userInput").value.toLowerCase();
+      const response = knowledge[input] || "Sorry, I don't know that yet!";
+      const chatbox = document.getElementById("chatbox");
+      chatbox.innerHTML += `<p><strong>You:</strong> ${input}</p>`;
+      chatbox.innerHTML += `<p><strong>AI:</strong> ${response}</p>`;
+      document.getElementById("userInput").value = "";
+      chatbox.scrollTop = chatbox.scrollHeight;
     }
-
-    if (mode === "register") {
-      if (users[user]) {
-        messageDiv.textContent = "Username already exists.";
-      } else {
-        users[user] = pass;
-        localStorage.setItem('users', JSON.stringify(users));
-        messageDiv.style.color = "green";
-        messageDiv.textContent = "Registered! You can now login.";
-        toggleMode();
-      }
-    } else {
-      if (users[user] && users[user] === pass) {
-        localStorage.setItem('loggedInUser', user);
-        window.location.href = "dashboard.html"; // Redirect to dashboard
-      } else {
-        messageDiv.textContent = "Invalid username or password.";
-      }
-    }
-  });
-</script>
-
-</body>
-</html>
+  </script>
