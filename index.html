@@ -3,63 +3,128 @@
 <head>
   <meta charset="UTF-8">
   <title>Bloxd.io Code Hub</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+    form { margin-bottom: 20px; }
+    .post { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    img { max-width: 100%; height: auto; }
+  </style>
 </head>
 <body>
-  <h1>🧩 Bloxdy Code Sharing</h1>
 
-  <!-- Registration Form -->
-  <h2>👤 Create an Account</h2>
-  <form>
-    <label>Username:<br>
-      <input type="text" name="reg_username" required>
-    </label><br><br>
-    <label>Password:<br>
-      <input type="password" name="reg_password" required>
-    </label><br><br>
-    <input type="submit" value="Register (Visual Only)">
+<h1>🧩 Bloxd.io Code Hub</h1>
+
+<div id="authSection">
+  <h2>Register</h2>
+  <form id="registerForm">
+    <input type="text" id="regUser" placeholder="Username" required><br><br>
+    <input type="password" id="regPass" placeholder="Password" required><br><br>
+    <button type="submit">Register</button>
   </form>
 
-  <hr>
+  <h2>Login</h2>
+  <form id="loginForm">
+    <input type="text" id="loginUser" placeholder="Username" required><br><br>
+    <input type="password" id="loginPass" placeholder="Password" required><br><br>
+    <button type="submit">Login</button>
+  </form>
+</div>
 
-  <!-- Login Form -->
-  <h2>🔐 Login</h2>
-  <form>
-    <label>Username:<br>
-      <input type="text" name="login_username" required>
-    </label><br><br>
-    <label>Password:<br>
-      <input type="password" name="login_password" required>
-    </label><br><br>
-    <input type="submit" value="Login (Visual Only)">
+<div id="userSection" style="display:none;">
+  <p>Logged in as <strong id="currentUser"></strong> | <a href="#" onclick="logout()">Logout</a></p>
+
+  <h2>Submit Bloxd.io Code</h2>
+  <form id="postForm">
+    <input type="text" id="postTitle" placeholder="Code Title" required><br><br>
+    <textarea id="postDesc" placeholder="Description" rows="4" required></textarea><br><br>
+    <input type="file" id="postImage" accept="image/*" required><br><br>
+    <button type="submit">Submit</button>
   </form>
 
-  <hr>
+  <h2>🧠 Recent Posts</h2>
+  <div id="posts"></div>
+</div>
 
-  <!-- Post Submission Form -->
-  <h2>📤 Submit a Bloxd.io Code</h2>
-  <form>
-    <label>Title:<br>
-      <input type="text" name="code_title" required>
-    </label><br><br>
-    <label>Description:<br>
-      <textarea name="code_description" rows="5" cols="40" required></textarea>
-    </label><br><br>
-    <label>Screenshot:<br>
-      <input type="file" name="code_image" accept="image/*" required>
-    </label><br><br>
-    <input type="submit" value="Post Code (No Real Upload)">
-  </form>
+<script>
+  const users = JSON.parse(localStorage.getItem('users') || '{}');
+  const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+  let loggedInUser = localStorage.getItem('loggedInUser');
 
-  <hr>
+  function updateUI() {
+    document.getElementById('authSection').style.display = loggedInUser ? 'none' : 'block';
+    document.getElementById('userSection').style.display = loggedInUser ? 'block' : 'none';
+    if (loggedInUser) {
+      document.getElementById('currentUser').innerText = loggedInUser;
+    }
+    showPosts();
+  }
 
-  <!-- Static Example of a Post -->
-  <h2>🧠 Example Post</h2>
-  <div>
-    <h3>Infinite Jump Hack</h3>
-    <img src="example.jpg" alt="Infinite Jump Preview" width="200">
-    <p>This hack lets you jump infinitely in Bloxd.io parkour maps. Use responsibly!</p>
-    <small>Posted by: TestUser</small>
-  </div>
+  document.getElementById('registerForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const user = document.getElementById('regUser').value;
+    const pass = document.getElementById('regPass').value;
+    if (users[user]) return alert("Username already exists.");
+    users[user] = pass;
+    localStorage.setItem('users', JSON.stringify(users));
+    alert("Registered! Now log in.");
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const user = document.getElementById('loginUser').value;
+    const pass = document.getElementById('loginPass').value;
+    if (users[user] === pass) {
+      loggedInUser = user;
+      localStorage.setItem('loggedInUser', user);
+      updateUI();
+    } else {
+      alert("Invalid username or password.");
+    }
+  });
+
+  function logout() {
+    loggedInUser = null;
+    localStorage.removeItem('loggedInUser');
+    updateUI();
+  }
+
+  document.getElementById('postForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const title = document.getElementById('postTitle').value;
+    const desc = document.getElementById('postDesc').value;
+    const imgFile = document.getElementById('postImage').files[0];
+    const reader = new FileReader();
+    reader.onload = function() {
+      const newPost = {
+        user: loggedInUser,
+        title: title,
+        desc: desc,
+        img: reader.result
+      };
+      posts.unshift(newPost);
+      localStorage.setItem('posts', JSON.stringify(posts));
+      showPosts();
+      document.getElementById('postForm').reset();
+    };
+    reader.readAsDataURL(imgFile);
+  });
+
+  function showPosts() {
+    const container = document.getElementById('posts');
+    container.innerHTML = '';
+    posts.forEach(post => {
+      const div = document.createElement('div');
+      div.className = 'post';
+      div.innerHTML = `<h3>${post.title}</h3>
+                       <p>${post.desc}</p>
+                       <img src="${post.img}" alt="Code image">
+                       <small>Posted by: ${post.user}</small>`;
+      container.appendChild(div);
+    });
+  }
+
+  updateUI();
+</script>
 
 </body>
 </html>
