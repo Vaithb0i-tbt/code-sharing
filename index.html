@@ -1,38 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Bloxd.io AI</title>
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
-    #chatbox { width: 100%; height: 300px; border: 1px solid #ccc; overflow-y: scroll; padding: 10px; }
-    #userInput { width: 80%; padding: 10px; }
-    button { padding: 10px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zip Folder Tool</title>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        input, button { padding: 10px; margin: 10px; }
+    </style>
 </head>
 <body>
-  <h1>Bloxd.io AI Chat</h1>
-  <div id="chatbox"></div>
-  <input type="text" id="userInput" placeholder="Ask about bloxd.io..." />
-  <button onclick="getAnswer()">Send</button>
+    <h1>Zip Your Folder</h1>
+    <p>Select your folder and click "Zip".</p>
+    <input type="file" id="folderInput" webkitdirectory directory multiple>
+    <br>
+    <button onclick="zipAndDownload()">Zip and Download</button>
+    
+    <script>
+        function zipAndDownload() {
+            const folderInput = document.getElementById("folderInput");
+            const zip = new JSZip();
+            
+            if (folderInput.files.length === 0) {
+                alert("Please select a folder!");
+                return;
+            }
 
-  <script>
-    const knowledge = {
-      "what is bloxd.io": "Bloxd.io is a multiplayer Minecraft-style parkour and building game available in browsers.",
-      "how to play bloxd.io": "Use WASD to move, space to jump. Complete parkour levels or explore sandbox modes.",
-      "who made bloxd.io": "Bloxd.io was developed by Arthur and other indie developers.",
-      "is bloxd.io multiplayer": "Yes! It features real-time multiplayer modes including BloxdHop and Peaceful.",
-      "what are the game modes": "Game modes include BloxdHop, DoodleCube, Peaceful, Evil Tower, and CubeWarfare.",
-      "tips for bloxdhop": "Time your jumps, use momentum, and avoid falling off moving blocks.",
-    };
+            // Loop through the selected files
+            Array.from(folderInput.files).forEach(file => {
+                // Add each file to the zip file
+                zip.file(file.webkitRelativePath, file);
+            });
 
-    function getAnswer() {
-      const input = document.getElementById("userInput").value.toLowerCase();
-      const response = knowledge[input] || "Sorry, I don't know that yet!";
-      const chatbox = document.getElementById("chatbox");
-      chatbox.innerHTML += `<p><strong>You:</strong> ${input}</p>`;
-      chatbox.innerHTML += `<p><strong>AI:</strong> ${response}</p>`;
-      document.getElementById("userInput").value = "";
-      chatbox.scrollTop = chatbox.scrollHeight;
-    }
-  </script>
+            // Generate the zip file and trigger download
+            zip.generateAsync({ type: "blob" })
+                .then(function(content) {
+                    // Create a downloadable link for the zip file
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(content);
+                    link.download = "your-folder.zip";  // You can customize the file name here
+                    link.click();
+                })
+                .catch(function(error) {
+                    console.error("Error while creating the zip file:", error);
+                });
+        }
+    </script>
+</body>
+</html>
