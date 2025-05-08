@@ -4,126 +4,95 @@
   <meta charset="UTF-8">
   <title>Bloxd.io Code Hub</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
-    form { margin-bottom: 20px; }
-    .post { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
-    img { max-width: 100%; height: auto; }
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    h1 { text-align: center; }
+    .hidden { display: none; }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    #formContainer {
+      text-align: center;
+    }
+    .toggle-btn {
+      background-color: transparent;
+      border: none;
+      color: blue;
+      cursor: pointer;
+      margin-top: -10px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    #message { color: red; font-size: 14px; }
   </style>
 </head>
 <body>
 
-<h1>🧩 Bloxd.io Code Hub</h1>
+<h1>🔐 Bloxd.io Login / Register</h1>
 
-<div id="authSection">
-  <h2>Register</h2>
-  <form id="registerForm">
-    <input type="text" id="regUser" placeholder="Username" required><br><br>
-    <input type="password" id="regPass" placeholder="Password" required><br><br>
-    <button type="submit">Register</button>
-  </form>
+<div id="formContainer">
+  <div id="message"></div>
 
-  <h2>Login</h2>
-  <form id="loginForm">
-    <input type="text" id="loginUser" placeholder="Username" required><br><br>
-    <input type="password" id="loginPass" placeholder="Password" required><br><br>
-    <button type="submit">Login</button>
-  </form>
-</div>
-
-<div id="userSection" style="display:none;">
-  <p>Logged in as <strong id="currentUser"></strong> | <a href="#" onclick="logout()">Logout</a></p>
-
-  <h2>Submit Bloxd.io Code</h2>
-  <form id="postForm">
-    <input type="text" id="postTitle" placeholder="Code Title" required><br><br>
-    <textarea id="postDesc" placeholder="Description" rows="4" required></textarea><br><br>
-    <input type="file" id="postImage" accept="image/*" required><br><br>
-    <button type="submit">Submit</button>
-  </form>
-
-  <h2>🧠 Recent Posts</h2>
-  <div id="posts"></div>
+  <input type="text" id="username" placeholder="Username" required>
+  <input type="password" id="password" placeholder="Password" required>
+  <button id="submitBtn">Register</button>
+  <button class="toggle-btn" onclick="toggleMode()">Already have an account? Login</button>
 </div>
 
 <script>
+  let mode = "register"; // or "login"
+
   const users = JSON.parse(localStorage.getItem('users') || '{}');
-  const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-  let loggedInUser = localStorage.getItem('loggedInUser');
+  const messageDiv = document.getElementById('message');
+  const submitBtn = document.getElementById('submitBtn');
 
-  function updateUI() {
-    document.getElementById('authSection').style.display = loggedInUser ? 'none' : 'block';
-    document.getElementById('userSection').style.display = loggedInUser ? 'block' : 'none';
-    if (loggedInUser) {
-      document.getElementById('currentUser').innerText = loggedInUser;
-    }
-    showPosts();
+  function toggleMode() {
+    mode = (mode === "register") ? "login" : "register";
+    submitBtn.textContent = mode === "register" ? "Register" : "Login";
+    document.querySelector('.toggle-btn').textContent =
+      mode === "register" ? "Already have an account? Login" : "Don't have an account? Register";
+    messageDiv.textContent = "";
   }
 
-  document.getElementById('registerForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const user = document.getElementById('regUser').value;
-    const pass = document.getElementById('regPass').value;
-    if (users[user]) return alert("Username already exists.");
-    users[user] = pass;
-    localStorage.setItem('users', JSON.stringify(users));
-    alert("Registered! Now log in.");
-  });
+  submitBtn.addEventListener('click', function () {
+    const user = document.getElementById('username').value.trim();
+    const pass = document.getElementById('password').value;
 
-  document.getElementById('loginForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const user = document.getElementById('loginUser').value;
-    const pass = document.getElementById('loginPass').value;
-    if (users[user] === pass) {
-      loggedInUser = user;
-      localStorage.setItem('loggedInUser', user);
-      updateUI();
+    if (!user || !pass) {
+      messageDiv.textContent = "Please enter both fields.";
+      return;
+    }
+
+    if (mode === "register") {
+      if (users[user]) {
+        messageDiv.textContent = "Username already exists.";
+      } else {
+        users[user] = pass;
+        localStorage.setItem('users', JSON.stringify(users));
+        messageDiv.style.color = "green";
+        messageDiv.textContent = "Registered! You can now login.";
+        toggleMode();
+      }
     } else {
-      alert("Invalid username or password.");
+      if (users[user] && users[user] === pass) {
+        localStorage.setItem('loggedInUser', user);
+        window.location.href = "dashboard.html"; // Redirect to dashboard
+      } else {
+        messageDiv.textContent = "Invalid username or password.";
+      }
     }
   });
-
-  function logout() {
-    loggedInUser = null;
-    localStorage.removeItem('loggedInUser');
-    updateUI();
-  }
-
-  document.getElementById('postForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const title = document.getElementById('postTitle').value;
-    const desc = document.getElementById('postDesc').value;
-    const imgFile = document.getElementById('postImage').files[0];
-    const reader = new FileReader();
-    reader.onload = function() {
-      const newPost = {
-        user: loggedInUser,
-        title: title,
-        desc: desc,
-        img: reader.result
-      };
-      posts.unshift(newPost);
-      localStorage.setItem('posts', JSON.stringify(posts));
-      showPosts();
-      document.getElementById('postForm').reset();
-    };
-    reader.readAsDataURL(imgFile);
-  });
-
-  function showPosts() {
-    const container = document.getElementById('posts');
-    container.innerHTML = '';
-    posts.forEach(post => {
-      const div = document.createElement('div');
-      div.className = 'post';
-      div.innerHTML = `<h3>${post.title}</h3>
-                       <p>${post.desc}</p>
-                       <img src="${post.img}" alt="Code image">
-                       <small>Posted by: ${post.user}</small>`;
-      container.appendChild(div);
-    });
-  }
-
-  updateUI();
 </script>
 
 </body>
