@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flappy Hayden</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #70c5ce;
-        }
-        canvas {
-            display: block;
-            margin: auto;
-            background-color: #fff;
-            border: 1px solid black;
-        }
-    </style>
+    <title>Password-Protected ZIP File</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <canvas id="gameCanvas" width="320" height="480"></canvas>
-    <script src="game.js"></script>
+    <div class="container">
+        <h1>File Protector</h1>
+        <form id="upload-form">
+            <label for="files">Choose files to protect:</label>
+            <input type="file" id="files" name="files" multiple required>
+            
+            <label for="password">Enter password:</label>
+            <input type="password" id="password" name="password" required>
+            
+            <button type="submit">Create Encrypted ZIP</button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
