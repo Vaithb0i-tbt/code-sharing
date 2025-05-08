@@ -3,49 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zip Folder Tool</title>
-    <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        input, button { padding: 10px; margin: 10px; }
-    </style>
+    <title>Voxel Game</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Zip Your Folder</h1>
-    <p>Select your folder and click "Zip".</p>
-    <input type="file" id="folderInput" webkitdirectory directory multiple>
-    <br>
-    <button onclick="zipAndDownload()">Zip and Download</button>
-    
-    <script>
-        function zipAndDownload() {
-            const folderInput = document.getElementById("folderInput");
-            const zip = new JSZip();
-            
-            if (folderInput.files.length === 0) {
-                alert("Please select a folder!");
-                return;
-            }
-
-            // Loop through the selected files
-            Array.from(folderInput.files).forEach(file => {
-                // Add each file to the zip file
-                zip.file(file.webkitRelativePath, file);
-            });
-
-            // Generate the zip file and trigger download
-            zip.generateAsync({ type: "blob" })
-                .then(function(content) {
-                    // Create a downloadable link for the zip file
-                    const link = document.createElement("a");
-                    link.href = URL.createObjectURL(content);
-                    link.download = "your-folder.zip";  // You can customize the file name here
-                    link.click();
-                })
-                .catch(function(error) {
-                    console.error("Error while creating the zip file:", error);
-                });
-        }
-    </script>
+    <h1>Voxel Game</h1>
+    <div id="game-container"></div>
+    <script src="libs/three.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
